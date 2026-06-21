@@ -50,13 +50,13 @@ Ouvrez **Zotero → Paramètres (⌘,) → Grounded Q&A** dans le panneau de gau
 
 ### Où obtenir une clé API
 
-| Fournisseur | Obtenir une clé | Format de la clé |
-| --- | --- | --- |
-| **Anthropic** | [console.anthropic.com](https://console.anthropic.com) → API Keys | `sk-ant-api03-…` |
-| **OpenAI** | [platform.openai.com](https://platform.openai.com) → API Keys | `sk-…` |
-| **DeepSeek** | [platform.deepseek.com](https://platform.deepseek.com) → API Keys | `sk-…` |
-| **Grok (xAI)** | [console.x.ai](https://console.x.ai) → API Keys | `xai-…` |
-| **Ollama** | Aucune clé nécessaire — [installez Ollama](https://ollama.com) et exécutez un modèle localement | — |
+| Fournisseur    | Obtenir une clé                                                                                 | Format de la clé |
+| -------------- | ----------------------------------------------------------------------------------------------- | ---------------- |
+| **Anthropic**  | [console.anthropic.com](https://console.anthropic.com) → API Keys                               | `sk-ant-api03-…` |
+| **OpenAI**     | [platform.openai.com](https://platform.openai.com) → API Keys                                   | `sk-…`           |
+| **DeepSeek**   | [platform.deepseek.com](https://platform.deepseek.com) → API Keys                               | `sk-…`           |
+| **Grok (xAI)** | [console.x.ai](https://console.x.ai) → API Keys                                                 | `xai-…`          |
+| **Ollama**     | Aucune clé nécessaire — [installez Ollama](https://ollama.com) et exécutez un modèle localement | —                |
 
 ---
 
@@ -77,19 +77,19 @@ Ouvrez **Zotero → Paramètres (⌘,) → Grounded Q&A** dans le panneau de gau
 4. Posez votre question. La réponse cite `[Paper N, Page M]` — cliquez sur une citation pour ouvrir **cet** article à la page citée.
 
 > [!tip]
-> Les questions multi-articles sont idéales pour comparer la littérature, par ex. *« En quoi ces articles diffèrent-ils dans leur protocole expérimental ? »* ou *« Quel article rapporte la précision la plus élevée, et sur quel jeu de données ? »*
+> Les questions multi-articles sont idéales pour comparer la littérature, par ex. _« En quoi ces articles diffèrent-ils dans leur protocole expérimental ? »_ ou _« Quel article rapporte la précision la plus élevée, et sur quel jeu de données ? »_
 
 ---
 
 ## 🧩 Fournisseurs et modèles pris en charge
 
-| Fournisseur | Point de terminaison | Modèles |
-| --- | --- | --- |
+| Fournisseur            | Point de terminaison        | Modèles                                                             |
+| ---------------------- | --------------------------- | ------------------------------------------------------------------- |
 | **Anthropic (Claude)** | `https://api.anthropic.com` | `claude-haiku-4-5-20251001`, `claude-sonnet-4-6`, `claude-opus-4-8` |
-| **OpenAI (GPT)** | `https://api.openai.com` | `gpt-5.3-instant`, `gpt-5.4-pro`, `gpt-5.4-thinking` |
-| **Ollama (local)** | `http://localhost:11434` | `llama3.2`, `llama3.1`, `mistral`, `qwen2.5`, `gemma3` |
-| **DeepSeek** | `https://api.deepseek.com` | `deepseek-r1` |
-| **Grok (xAI)** | `https://api.x.ai` | `grok-4.3`, `grok-4.20` |
+| **OpenAI (GPT)**       | `https://api.openai.com`    | `gpt-5.3-instant`, `gpt-5.4-pro`, `gpt-5.4-thinking`                |
+| **Ollama (local)**     | `http://localhost:11434`    | `llama3.2`, `llama3.1`, `mistral`, `qwen2.5`, `gemma3`              |
+| **DeepSeek**           | `https://api.deepseek.com`  | `deepseek-r1`                                                       |
+| **Grok (xAI)**         | `https://api.x.ai`          | `grok-4.3`, `grok-4.20`                                             |
 
 Tous les fournisseurs cloud sont appelés via leur point de terminaison `/v1/chat/completions` compatible OpenAI, sauf Anthropic, qui utilise son API native `/v1/messages`.
 
@@ -151,6 +151,7 @@ Zotero n'a pas indexé le texte du PDF. Ouvrez-le une fois dans le lecteur, ou f
 Ajoutez votre clé dans **Paramètres → Grounded Q&A**, puis cliquez sur **Test connection** pour confirmer. (Non requise pour Ollama.)
 
 **Le test de connexion échoue avec une erreur HTTP.**
+
 - `401` — clé API erronée ou expirée.
 - `404` / erreur de modèle — le modèle sélectionné n'est pas disponible sur votre compte ; choisissez-en un autre.
 - Pour Ollama, assurez-vous que le serveur est en cours d'exécution (`ollama serve`) et que le modèle est téléchargé (`ollama pull llama3.2`).

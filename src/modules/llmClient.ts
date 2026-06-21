@@ -74,7 +74,13 @@ ${context}`;
   if (provider === "anthropic") {
     return callAnthropicAPI(apiKey, model, baseUrl, systemPrompt, question);
   }
-  return callOpenAICompatibleAPI(apiKey, model, baseUrl, systemPrompt, question);
+  return callOpenAICompatibleAPI(
+    apiKey,
+    model,
+    baseUrl,
+    systemPrompt,
+    question,
+  );
 }
 
 export interface PaperSource {
@@ -114,7 +120,13 @@ ${context}`;
   if (provider === "anthropic") {
     return callAnthropicAPI(apiKey, model, baseUrl, systemPrompt, question);
   }
-  return callOpenAICompatibleAPI(apiKey, model, baseUrl, systemPrompt, question);
+  return callOpenAICompatibleAPI(
+    apiKey,
+    model,
+    baseUrl,
+    systemPrompt,
+    question,
+  );
 }
 
 /** Cap-per-paper context builder: each paper gets an equal share of the budget. */
@@ -196,7 +208,9 @@ async function callOpenAICompatibleAPI(
   systemPrompt: string,
   userMessage: string,
 ): Promise<string> {
-  const headers: Record<string, string> = { "Content-Type": "application/json" };
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
   if (apiKey) headers["Authorization"] = `Bearer ${apiKey}`;
   return zoteroLLMRequest(
     `${baseUrl}/v1/chat/completions`,
@@ -243,6 +257,8 @@ async function zoteroLLMRequest(
   try {
     const err = JSON.parse(xhr.responseText);
     message = err.error?.message ?? message;
-  } catch { /* keep default */ }
+  } catch {
+    /* keep default */
+  }
   throw new Error(message);
 }

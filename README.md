@@ -50,13 +50,13 @@ Open **Zotero → Settings (⌘,) → Grounded Q&A** in the left panel.
 
 ### Where to get an API key
 
-| Provider | Get a key | Key format |
-| --- | --- | --- |
-| **Anthropic** | [console.anthropic.com](https://console.anthropic.com) → API Keys | `sk-ant-api03-…` |
-| **OpenAI** | [platform.openai.com](https://platform.openai.com) → API Keys | `sk-…` |
-| **DeepSeek** | [platform.deepseek.com](https://platform.deepseek.com) → API Keys | `sk-…` |
-| **Grok (xAI)** | [console.x.ai](https://console.x.ai) → API Keys | `xai-…` |
-| **Ollama** | No key needed — [install Ollama](https://ollama.com) and run a model locally | — |
+| Provider       | Get a key                                                                    | Key format       |
+| -------------- | ---------------------------------------------------------------------------- | ---------------- |
+| **Anthropic**  | [console.anthropic.com](https://console.anthropic.com) → API Keys            | `sk-ant-api03-…` |
+| **OpenAI**     | [platform.openai.com](https://platform.openai.com) → API Keys                | `sk-…`           |
+| **DeepSeek**   | [platform.deepseek.com](https://platform.deepseek.com) → API Keys            | `sk-…`           |
+| **Grok (xAI)** | [console.x.ai](https://console.x.ai) → API Keys                              | `xai-…`          |
+| **Ollama**     | No key needed — [install Ollama](https://ollama.com) and run a model locally | —                |
 
 ---
 
@@ -77,19 +77,19 @@ Open **Zotero → Settings (⌘,) → Grounded Q&A** in the left panel.
 4. Ask your question. The answer cites `[Paper N, Page M]` — click a citation to open **that** paper at the cited page.
 
 > [!tip]
-> Multi-paper questions are great for literature comparison, e.g. *"How do these papers differ in their experimental setup?"* or *"Which paper reports the highest accuracy, and on what dataset?"*
+> Multi-paper questions are great for literature comparison, e.g. _"How do these papers differ in their experimental setup?"_ or _"Which paper reports the highest accuracy, and on what dataset?"_
 
 ---
 
 ## 🧩 Supported Providers & Models
 
-| Provider | Endpoint | Models |
-| --- | --- | --- |
+| Provider               | Endpoint                    | Models                                                              |
+| ---------------------- | --------------------------- | ------------------------------------------------------------------- |
 | **Anthropic (Claude)** | `https://api.anthropic.com` | `claude-haiku-4-5-20251001`, `claude-sonnet-4-6`, `claude-opus-4-8` |
-| **OpenAI (GPT)** | `https://api.openai.com` | `gpt-5.3-instant`, `gpt-5.4-pro`, `gpt-5.4-thinking` |
-| **Ollama (local)** | `http://localhost:11434` | `llama3.2`, `llama3.1`, `mistral`, `qwen2.5`, `gemma3` |
-| **DeepSeek** | `https://api.deepseek.com` | `deepseek-r1` |
-| **Grok (xAI)** | `https://api.x.ai` | `grok-4.3`, `grok-4.20` |
+| **OpenAI (GPT)**       | `https://api.openai.com`    | `gpt-5.3-instant`, `gpt-5.4-pro`, `gpt-5.4-thinking`                |
+| **Ollama (local)**     | `http://localhost:11434`    | `llama3.2`, `llama3.1`, `mistral`, `qwen2.5`, `gemma3`              |
+| **DeepSeek**           | `https://api.deepseek.com`  | `deepseek-r1`                                                       |
+| **Grok (xAI)**         | `https://api.x.ai`          | `grok-4.3`, `grok-4.20`                                             |
 
 All cloud providers are called through their OpenAI-compatible `/v1/chat/completions` endpoint, except Anthropic, which uses its native `/v1/messages` API.
 
@@ -151,6 +151,7 @@ Zotero hasn't indexed the PDF's text. Open it in the reader once, or right-click
 Add your key in **Settings → Grounded Q&A**, then click **Test connection** to confirm. (Not required for Ollama.)
 
 **Test connection fails with an HTTP error.**
+
 - `401` — wrong or expired API key.
 - `404` / model error — the selected model isn't available on your account; pick another.
 - For Ollama, make sure the server is running (`ollama serve`) and the model is pulled (`ollama pull llama3.2`).

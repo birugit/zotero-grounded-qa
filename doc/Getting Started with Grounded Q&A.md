@@ -26,25 +26,25 @@ Open **Zotero → Settings (⌘,) → Grounded Q&A** in the left panel.
 
 Configure the following:
 
-| Field | What to do |
-| --- | --- |
-| **AI Provider** | Choose your provider — Anthropic (Claude), OpenAI (GPT), Ollama (local), DeepSeek, or Grok (xAI). |
-| **API Key** | Paste your key. The label and placeholder update to match the provider. Click **Show** to reveal what you typed. *(Not required for Ollama.)* |
-| **Base URL** | Only appears for Ollama — defaults to `http://localhost:11434`. |
-| **Model** | Pick a model from the list for the selected provider. |
-| **Test connection** | Click to verify your provider, key, and model. On success you'll see `✓ Connected — model "…" OK`. |
+| Field               | What to do                                                                                                                                    |
+| ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| **AI Provider**     | Choose your provider — Anthropic (Claude), OpenAI (GPT), Ollama (local), DeepSeek, or Grok (xAI).                                             |
+| **API Key**         | Paste your key. The label and placeholder update to match the provider. Click **Show** to reveal what you typed. _(Not required for Ollama.)_ |
+| **Base URL**        | Only appears for Ollama — defaults to `http://localhost:11434`.                                                                               |
+| **Model**           | Pick a model from the list for the selected provider.                                                                                         |
+| **Test connection** | Click to verify your provider, key, and model. On success you'll see `✓ Connected — model "…" OK`.                                            |
 
-> The screenshot above shows Anthropic selected with the `claude-haiku-4-5-20251001` model. The hint beneath the key field tells you where to get a key for the chosen provider (e.g. *console.anthropic.com → API Keys*).
+> The screenshot above shows Anthropic selected with the `claude-haiku-4-5-20251001` model. The hint beneath the key field tells you where to get a key for the chosen provider (e.g. _console.anthropic.com → API Keys_).
 
 ### Where to get an API key
 
-| Provider | Get a key | Key format |
-| --- | --- | --- |
-| **Anthropic** | [console.anthropic.com](https://console.anthropic.com) → API Keys | `sk-ant-api03-…` |
-| **OpenAI** | [platform.openai.com](https://platform.openai.com) → API Keys | `sk-…` |
-| **DeepSeek** | [platform.deepseek.com](https://platform.deepseek.com) → API Keys | `sk-…` |
-| **Grok (xAI)** | [console.x.ai](https://console.x.ai) → API Keys | `xai-…` |
-| **Ollama** | No key needed — [install Ollama](https://ollama.com) and run a model locally | — |
+| Provider       | Get a key                                                                    | Key format       |
+| -------------- | ---------------------------------------------------------------------------- | ---------------- |
+| **Anthropic**  | [console.anthropic.com](https://console.anthropic.com) → API Keys            | `sk-ant-api03-…` |
+| **OpenAI**     | [platform.openai.com](https://platform.openai.com) → API Keys                | `sk-…`           |
+| **DeepSeek**   | [platform.deepseek.com](https://platform.deepseek.com) → API Keys            | `sk-…`           |
+| **Grok (xAI)** | [console.x.ai](https://console.x.ai) → API Keys                              | `xai-…`          |
+| **Ollama**     | No key needed — [install Ollama](https://ollama.com) and run a model locally | —                |
 
 > **Tip:** Always click **Test connection** after entering your key. It catches a wrong key (HTTP 401) or an unavailable model before you rely on it during real questions.
 
@@ -77,12 +77,13 @@ Great for literature comparison — ask one question and have it answered across
 
 ![Multi-paper Grounded Q&A dialog](Multiple%20Paper%20Grounded%20QA.png)
 
-The dialog header lists the papers being queried (e.g. *"Asking across 2 papers"*). Type your question and click **Ask**. The answer cites **`[Paper N, Page M]`** — clicking a citation opens **that specific paper** at the cited page. Click **Close** when you're done.
+The dialog header lists the papers being queried (e.g. _"Asking across 2 papers"_). Type your question and click **Ask**. The answer cites **`[Paper N, Page M]`** — clicking a citation opens **that specific paper** at the cited page. Click **Close** when you're done.
 
 > **Example questions:**
-> - *"How do these papers differ in their experimental setup?"*
-> - *"Which paper reports the highest accuracy, and on what dataset?"*
-> - *"Summarize the common limitations discussed across these papers."*
+>
+> - _"How do these papers differ in their experimental setup?"_
+> - _"Which paper reports the highest accuracy, and on what dataset?"_
+> - _"Summarize the common limitations discussed across these papers."_
 
 > **Note:** The menu item only appears when **at least 2 selected items have a PDF**. If you select two items but only one has a PDF attached, it stays hidden.
 
@@ -103,14 +104,14 @@ This lets you trace any statement back to its exact source in seconds, instead o
 
 ## Troubleshooting
 
-| Problem | Fix |
-| --- | --- |
-| **"No text found in this PDF."** | Open the PDF in the reader once, or right-click → **Reindex Item**. Image-only PDFs need OCR first. |
-| **"API key not set."** | Add your key in **Settings → Grounded Q&A** and click **Test connection**. (Not needed for Ollama.) |
-| **Test connection fails (401)** | Wrong or expired API key. |
-| **Test connection fails (404 / model error)** | The selected model isn't available on your account — pick another. |
-| **Ollama not responding** | Make sure the server is running (`ollama serve`) and the model is pulled (`ollama pull llama3.2`). |
-| **Multi-paper menu missing** | Select **2+ items that each have a PDF** attachment. |
+| Problem                                       | Fix                                                                                                 |
+| --------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| **"No text found in this PDF."**              | Open the PDF in the reader once, or right-click → **Reindex Item**. Image-only PDFs need OCR first. |
+| **"API key not set."**                        | Add your key in **Settings → Grounded Q&A** and click **Test connection**. (Not needed for Ollama.) |
+| **Test connection fails (401)**               | Wrong or expired API key.                                                                           |
+| **Test connection fails (404 / model error)** | The selected model isn't available on your account — pick another.                                  |
+| **Ollama not responding**                     | Make sure the server is running (`ollama serve`) and the model is pulled (`ollama pull llama3.2`).  |
+| **Multi-paper menu missing**                  | Select **2+ items that each have a PDF** attachment.                                                |
 
 For deeper diagnostics, open **Help → Debug Output Logging → View Output** and look for lines starting with `[GroundedQA]`.
 

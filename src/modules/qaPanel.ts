@@ -29,9 +29,7 @@ export class QAPanelFactory {
           .getGlobal("ZoteroPane")
           .getSelectedItems();
         // Show only when 2+ selected items have a PDF to reason over
-        return (
-          items.filter((i) => findPdfAttachmentID(i) !== null).length >= 2
-        );
+        return items.filter((i) => findPdfAttachmentID(i) !== null).length >= 2;
       },
       commandListener: () => {
         QAPanelFactory.openMultiPaperDialog();
@@ -58,7 +56,9 @@ export class QAPanelFactory {
       try {
         const pages = await extractPDFPages(item);
         if (pages.length === 0) {
-          warnings.push(`"${title.slice(0, 50)}" — no extractable text (skipped)`);
+          warnings.push(
+            `"${title.slice(0, 50)}" — no extractable text (skipped)`,
+          );
           continue;
         }
         papers.push({
@@ -95,16 +95,20 @@ export class QAPanelFactory {
     }
 
     const prefsPrefix = addon.data.config.prefsPrefix;
-    const hasApiKey = !!(
-      Zotero.Prefs.get(`${prefsPrefix}.apiKey`, true) as string
-    );
+    const hasApiKey = !!(Zotero.Prefs.get(
+      `${prefsPrefix}.apiKey`,
+      true,
+    ) as string);
 
     const headerLines = [
       `Asking across ${papers.length} paper${papers.length > 1 ? "s" : ""}:`,
       ...papers.map((p) => `  • ${p.title.slice(0, 70)}`),
     ];
     if (warnings.length) {
-      headerLines.push("", `⚠ Skipped ${warnings.length}: ${warnings.join("; ")}`);
+      headerLines.push(
+        "",
+        `⚠ Skipped ${warnings.length}: ${warnings.join("; ")}`,
+      );
     }
     if (!hasApiKey) {
       headerLines.push(
@@ -176,7 +180,9 @@ export class QAPanelFactory {
     const textarea = doc.getElementById(
       "gqa-multi-question",
     ) as HTMLTextAreaElement | null;
-    const answerEl = doc.getElementById("gqa-multi-answer") as HTMLElement | null;
+    const answerEl = doc.getElementById(
+      "gqa-multi-answer",
+    ) as HTMLElement | null;
     if (!textarea || !answerEl) return;
 
     const question = textarea.value.trim();
@@ -190,10 +196,9 @@ export class QAPanelFactory {
       const answer = await askGroundedQuestionMultiple(question, papers);
       QAPanelFactory.renderMultiAnswer(answerEl, answer, papers);
     } catch (e: any) {
-      answerEl.textContent =
-        e.message?.includes("API key not set")
-          ? "⚠ No API key — set one in Settings → Grounded Q&A."
-          : `Error: ${e.message}`;
+      answerEl.textContent = e.message?.includes("API key not set")
+        ? "⚠ No API key — set one in Settings → Grounded Q&A."
+        : `Error: ${e.message}`;
       answerEl.style.color = "#c00";
       ztoolkit.log("Multi-paper Q&A error:", e);
     } finally {
@@ -248,9 +253,7 @@ export class QAPanelFactory {
   } {
     const paperMatch = citation.match(/Paper (\d+)/);
     const pagePart = citation.match(/Page ([\d,\s]+)/);
-    const pages = pagePart
-      ? (pagePart[1].match(/\d+/g) || []).map(Number)
-      : [];
+    const pages = pagePart ? (pagePart[1].match(/\d+/g) || []).map(Number) : [];
     return {
       paperNumber: paperMatch ? Number(paperMatch[1]) : 0,
       pages,
@@ -293,7 +296,9 @@ export class QAPanelFactory {
         if (body.dataset.qaInit) {
           (body as any)._qaItem = item;
           // Refresh setup-card visibility when item changes (user may have set the key)
-          const card = body.querySelector("[data-qa-setup]") as HTMLElement | null;
+          const card = body.querySelector(
+            "[data-qa-setup]",
+          ) as HTMLElement | null;
           if (card) card.hidden = hasApiKey();
           return;
         }
@@ -326,8 +331,7 @@ export class QAPanelFactory {
         setupCard.appendChild(doc.createElement("br"));
         const step1 = doc.createElement("span");
         step1.style.cssText = "color:#555;";
-        step1.textContent =
-          "Mac: ⌘,  ·  Windows/Linux: Edit → Settings";
+        step1.textContent = "Mac: ⌘,  ·  Windows/Linux: Edit → Settings";
         setupCard.appendChild(step1);
         setupCard.appendChild(doc.createElement("br"));
         const step2 = doc.createElement("b");
@@ -410,8 +414,7 @@ export class QAPanelFactory {
             const errDiv = doc.createElement("div");
             if (e.message.includes("API key not set")) {
               errDiv.style.cssText = "color:#b80;font-size:12px;";
-              errDiv.textContent =
-                "⚠ No API key — see the setup box above.";
+              errDiv.textContent = "⚠ No API key — see the setup box above.";
             } else {
               errDiv.style.cssText = "color:#c00;font-size:12px;";
               errDiv.textContent = `Error: ${e.message}`;

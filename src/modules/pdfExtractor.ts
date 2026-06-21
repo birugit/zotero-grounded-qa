@@ -5,7 +5,10 @@ export interface PageChunk {
 }
 
 function splitIntoPages(text: string): PageChunk[] {
-  const parts = text.split("\x0C").map((t) => t.trim()).filter((t) => t.length > 0);
+  const parts = text
+    .split("\x0C")
+    .map((t) => t.trim())
+    .filter((t) => t.length > 0);
   if (parts.length > 1) {
     return parts.map((pageText, index) => ({
       pageIndex: index,

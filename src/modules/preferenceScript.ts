@@ -18,7 +18,10 @@ const PROVIDERS: Record<string, ProviderConfig> = {
     name: "Anthropic",
     defaultModel: "claude-haiku-4-5-20251001",
     models: [
-      { value: "claude-haiku-4-5-20251001", label: "claude-haiku-4-5-20251001" },
+      {
+        value: "claude-haiku-4-5-20251001",
+        label: "claude-haiku-4-5-20251001",
+      },
       { value: "claude-sonnet-4-6", label: "claude-sonnet-4-6" },
       { value: "claude-opus-4-8", label: "claude-opus-4-8" },
     ],
@@ -61,9 +64,7 @@ const PROVIDERS: Record<string, ProviderConfig> = {
   deepseek: {
     name: "DeepSeek",
     defaultModel: "deepseek-r1",
-    models: [
-      { value: "deepseek-r1", label: "DeepSeek-R1" },
-    ],
+    models: [{ value: "deepseek-r1", label: "DeepSeek-R1" }],
     requiresKey: true,
     keyPlaceholder: "sk-...",
     keyHint: "Get your key at platform.deepseek.com → API Keys",
@@ -249,7 +250,9 @@ export async function registerPrefsScripts(window: Window) {
     if (testBtn) (testBtn as any).disabled = true;
 
     try {
-      Zotero.debug(`[GroundedQA] Test: provider=${provider} model=${model} url=${baseUrl}`);
+      Zotero.debug(
+        `[GroundedQA] Test: provider=${provider} model=${model} url=${baseUrl}`,
+      );
       const msg =
         provider === "anthropic"
           ? await pingAnthropicAPI(apiKey, model, baseUrl)
@@ -271,15 +274,20 @@ async function pingAnthropicAPI(
   model: string,
   baseUrl: string,
 ): Promise<string> {
-  return zoteroPing(`${baseUrl}/v1/messages`, {
-    "Content-Type": "application/json",
-    "x-api-key": apiKey,
-    "anthropic-version": "2023-06-01",
-  }, JSON.stringify({
-    model,
-    max_tokens: 8,
-    messages: [{ role: "user", content: "hi" }],
-  }), (data) => `Connected — model "${data.model ?? model}" OK`);
+  return zoteroPing(
+    `${baseUrl}/v1/messages`,
+    {
+      "Content-Type": "application/json",
+      "x-api-key": apiKey,
+      "anthropic-version": "2023-06-01",
+    },
+    JSON.stringify({
+      model,
+      max_tokens: 8,
+      messages: [{ role: "user", content: "hi" }],
+    }),
+    (data) => `Connected — model "${data.model ?? model}" OK`,
+  );
 }
 
 async function pingOpenAICompatibleAPI(
@@ -287,14 +295,20 @@ async function pingOpenAICompatibleAPI(
   model: string,
   baseUrl: string,
 ): Promise<string> {
-  const headers: Record<string, string> = { "Content-Type": "application/json" };
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
   if (apiKey) headers["Authorization"] = `Bearer ${apiKey}`;
-  return zoteroPing(`${baseUrl}/v1/chat/completions`, headers,
+  return zoteroPing(
+    `${baseUrl}/v1/chat/completions`,
+    headers,
     JSON.stringify({
       model,
       max_tokens: 8,
       messages: [{ role: "user", content: "hi" }],
-    }), (data) => `Connected — model "${data.model ?? model}" OK`);
+    }),
+    (data) => `Connected — model "${data.model ?? model}" OK`,
+  );
 }
 
 async function zoteroPing(
@@ -328,6 +342,8 @@ async function zoteroPing(
   try {
     const err = JSON.parse(xhr.responseText);
     message = err.error?.message ?? message;
-  } catch { /* keep default */ }
+  } catch {
+    /* keep default */
+  }
   throw new Error(message);
 }
