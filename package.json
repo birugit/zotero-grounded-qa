@@ -12,13 +12,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/swamybiru/zotero-grounded-qa.git"
+    "url": "git+https://github.com/birugit/zotero-grounded-qa.git"
   },
-  "author": "swamybiru",
+  "author": "birugit",
   "bugs": {
-    "url": "https://github.com/swamybiru/zotero-grounded-qa/issues"
+    "url": "https://github.com/birugit/zotero-grounded-qa/issues"
   },
-  "homepage": "https://github.com/swamybiru/zotero-grounded-qa#readme",
+  "homepage": "https://github.com/birugit/zotero-grounded-qa#readme",
   "license": "AGPL-3.0-or-later",
   "scripts": {
     "start": "zotero-plugin serve",

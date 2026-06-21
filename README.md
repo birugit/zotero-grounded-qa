@@ -25,7 +25,7 @@ Grounded Q&A reads the full text of your PDFs, sends your question to the AI pro
 
 ## 🚀 Installation
 
-1. Download the latest `grounded-q-a.xpi` from the [Releases page](https://github.com/swamybiru/zotero-grounded-qa/releases).
+1. Download the latest `grounded-q-a.xpi` from the [Releases page](https://github.com/birugit/zotero-grounded-qa/releases).
 2. In Zotero, open **Tools → Plugins** (or **Add-ons**).
 3. Click the gear icon ⚙ in the top-right → **Install Plugin From File…**
 4. Select the downloaded `.xpi` file.
