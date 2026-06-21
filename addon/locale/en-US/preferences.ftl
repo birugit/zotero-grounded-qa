@@ -1,5 +1,10 @@
-pref-title = Addon Template Example
-pref-enable =
-    .label = Enable
-pref-input = Input
-pref-help = { $name } Build { $version } { $time }
+pref-qa-section = Grounded Q&A Settings
+pref-qa-provider-label = AI Provider
+pref-qa-apikey-label = API Key
+pref-qa-baseurl-label = Base URL
+pref-qa-model-label = Model
+pref-qa-apikey-hint = Enter your API key for the selected provider
+pref-qa-baseurl-hint = Ollama server URL (default: http://localhost:11434)
+pref-qa-model-hint = Select a model for the chosen provider
+pref-qa-test-btn = Test connection
+pref-help = Grounded Q&A v{ $version } built { $time }

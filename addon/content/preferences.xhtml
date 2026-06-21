@@ -1,33 +1,118 @@
 <linkset>
   <html:link rel="localization" href="__addonRef__-preferences.ftl" />
 </linkset>
-<groupbox
-  onload="Zotero.__addonInstance__.hooks.onPrefsEvent('load', { window })"
->
-  <label><html:h2 data-l10n-id="pref-title"></html:h2></label>
-  <checkbox
-    id="zotero-prefpane-__addonRef__-enable"
-    preference="enable"
-    data-l10n-id="pref-enable"
-  />
-  <hbox>
+
+<groupbox onload="Zotero.__addonInstance__.hooks.onPrefsEvent('load', { window })">
+  <label><html:h2 data-l10n-id="pref-qa-section"></html:h2></label>
+
+  <!-- Provider selector -->
+  <hbox align="center" style="margin-bottom: 8px;">
     <html:label
-      for="zotero-prefpane-__addonRef__-input"
-      data-l10n-id="pref-input"
+      for="zotero-prefpane-__addonRef__-provider"
+      data-l10n-id="pref-qa-provider-label"
+      style="min-width: 130px; font-weight: bold;"
+    ></html:label>
+    <menulist id="zotero-prefpane-__addonRef__-provider" style="flex: 1;">
+      <menupopup>
+        <menuitem value="anthropic" label="Anthropic (Claude)"/>
+        <menuitem value="openai" label="OpenAI (GPT)"/>
+        <menuitem value="ollama" label="Ollama (local)"/>
+        <menuitem value="deepseek" label="DeepSeek"/>
+        <menuitem value="grok" label="Grok (xAI)"/>
+      </menupopup>
+    </menulist>
+  </hbox>
+
+  <!-- API Key (hidden for Ollama) -->
+  <hbox id="zotero-prefpane-__addonRef__-apikey-row" align="center" style="margin-bottom: 4px;">
+    <html:label
+      id="zotero-prefpane-__addonRef__-apikey-label"
+      for="zotero-prefpane-__addonRef__-apikey"
+      data-l10n-id="pref-qa-apikey-label"
+      style="min-width: 130px;"
+    ></html:label>
+    <html:input
+      type="password"
+      id="zotero-prefpane-__addonRef__-apikey"
+      preference="extensions.zotero.__addonRef__.apiKey"
+      placeholder="sk-ant-api03-..."
+      style="flex: 1; font-family: monospace;"
+    ></html:input>
+    <html:button
+      id="zotero-prefpane-__addonRef__-apikey-toggle"
+      style="margin-left: 4px; padding: 2px 8px; font-size: 11px; cursor: pointer;"
+    >Show</html:button>
+  </hbox>
+  <html:p
+    id="zotero-prefpane-__addonRef__-apikey-hint"
+    style="font-size: 11px; color: gray; margin: 2px 0 8px 0;"
+  ></html:p>
+
+  <!-- Base URL (shown only for Ollama) -->
+  <hbox id="zotero-prefpane-__addonRef__-baseurl-row" align="center" style="margin-bottom: 4px; display: none;">
+    <html:label
+      for="zotero-prefpane-__addonRef__-baseurl"
+      data-l10n-id="pref-qa-baseurl-label"
+      style="min-width: 130px;"
     ></html:label>
     <html:input
       type="text"
-      id="zotero-prefpane-__addonRef__-input"
-      preference="input"
+      id="zotero-prefpane-__addonRef__-baseurl"
+      preference="extensions.zotero.__addonRef__.baseUrl"
+      placeholder="http://localhost:11434"
+      style="flex: 1; font-family: monospace;"
     ></html:input>
   </hbox>
-  <hbox class="virtualized-table-container" flex="1" height="300px">
-    <html:div id="__addonRef__-table-container" />
+  <html:p
+    id="zotero-prefpane-__addonRef__-baseurl-hint"
+    data-l10n-id="pref-qa-baseurl-hint"
+    style="font-size: 11px; color: gray; margin: 2px 0 8px 0; display: none;"
+  ></html:p>
+
+  <!-- Model dropdown — all models are hardcoded; JS shows/hides by provider -->
+  <hbox align="center" style="margin-bottom: 12px;">
+    <html:label
+      for="zotero-prefpane-__addonRef__-model"
+      data-l10n-id="pref-qa-model-label"
+      style="min-width: 130px;"
+    ></html:label>
+    <menulist id="zotero-prefpane-__addonRef__-model" style="flex: 1;">
+      <menupopup>
+        <menuitem data-provider="anthropic" value="claude-haiku-4-5-20251001" label="claude-haiku-4-5-20251001"/>
+        <menuitem data-provider="anthropic" value="claude-sonnet-4-6" label="claude-sonnet-4-6"/>
+        <menuitem data-provider="anthropic" value="claude-opus-4-8" label="claude-opus-4-8"/>
+        <menuitem data-provider="openai" value="gpt-5.3-instant" label="GPT-5.3 Instant" hidden="true"/>
+        <menuitem data-provider="openai" value="gpt-5.4-pro" label="GPT-5.4 Pro" hidden="true"/>
+        <menuitem data-provider="openai" value="gpt-5.4-thinking" label="GPT-5.4 Thinking" hidden="true"/>
+        <menuitem data-provider="ollama" value="llama3.2" label="Llama 3.2" hidden="true"/>
+        <menuitem data-provider="ollama" value="llama3.1" label="Llama 3.1" hidden="true"/>
+        <menuitem data-provider="ollama" value="mistral" label="Mistral 7B" hidden="true"/>
+        <menuitem data-provider="ollama" value="qwen2.5" label="Qwen 2.5" hidden="true"/>
+        <menuitem data-provider="ollama" value="gemma3" label="Gemma 3" hidden="true"/>
+        <menuitem data-provider="deepseek" value="deepseek-r1" label="DeepSeek-R1" hidden="true"/>
+        <menuitem data-provider="grok" value="grok-4.3" label="Grok 4.3" hidden="true"/>
+        <menuitem data-provider="grok" value="grok-4.20" label="Grok 4.20" hidden="true"/>
+      </menupopup>
+    </menulist>
+  </hbox>
+
+  <!-- Test connection -->
+  <hbox align="center">
+    <html:button
+      id="zotero-prefpane-__addonRef__-test"
+      data-l10n-id="pref-qa-test-btn"
+      style="padding: 4px 14px; cursor: pointer;"
+    ></html:button>
+    <html:span
+      id="zotero-prefpane-__addonRef__-test-result"
+      style="margin-left: 10px; font-size: 12px;"
+    ></html:span>
   </hbox>
 </groupbox>
-<vbox>
+
+<vbox style="margin-top: 8px;">
   <html:label
     data-l10n-id="pref-help"
-    data-l10n-args='{"time": "__buildTime__","name": "__addonName__","version":"__buildVersion__"}'
+    data-l10n-args='{"time": "__buildTime__","version":"__buildVersion__"}'
   ></html:label>
 </vbox>

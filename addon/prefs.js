@@ -1,2 +1,4 @@
-pref("enable", true);
-pref("input", "This is input");
+pref("apiKey", "");
+pref("model", "");
+pref("provider", "anthropic");
+pref("baseUrl", "");

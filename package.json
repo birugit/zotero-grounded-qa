@@ -1,24 +1,24 @@
 {
-  "name": "zotero-plugin-template",
+  "name": "zotero-grounded-qa",
   "type": "module",
-  "version": "3.1.0",
-  "description": "Zotero Plugin Template",
+  "version": "1.0.0",
+  "description": "Grounded Q&A with page-jump citations for Zotero, powered by  AI",
   "config": {
-    "addonName": "Zotero Plugin Template",
-    "addonID": "addontemplate@euclpts.com",
-    "addonRef": "addontemplate",
-    "addonInstance": "AddonTemplate",
-    "prefsPrefix": "extensions.zotero.addontemplate"
+    "addonName": "Grounded Q&A",
+    "addonID": "grounded-qa@zotero.plugin",
+    "addonRef": "groundedqa",
+    "addonInstance": "GroundedQA",
+    "prefsPrefix": "extensions.zotero.groundedqa"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/windingwind/zotero-plugin-template.git"
+    "url": "git+https://github.com/swamybiru/zotero-grounded-qa.git"
   },
-  "author": "windingwind",
+  "author": "swamybiru",
   "bugs": {
-    "url": "https://github.com/windingwind/zotero-plugin-template/issues"
+    "url": "https://github.com/swamybiru/zotero-grounded-qa/issues"
   },
-  "homepage": "https://github.com/windingwind/zotero-plugin-template#readme",
+  "homepage": "https://github.com/swamybiru/zotero-grounded-qa#readme",
   "license": "AGPL-3.0-or-later",
   "scripts": {
     "start": "zotero-plugin serve",

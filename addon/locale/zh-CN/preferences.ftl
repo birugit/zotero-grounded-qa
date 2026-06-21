@@ -1,5 +1,10 @@
-pref-title = 插件模板设置示例
-pref-enable =
-    .label = 开启
-pref-input = 输入
-pref-help = { $name } Build { $version } { $time }
+pref-qa-section = Grounded Q&A 设置
+pref-qa-provider-label = AI 提供商
+pref-qa-apikey-label = API 密钥
+pref-qa-baseurl-label = 服务器地址
+pref-qa-model-label = 模型
+pref-qa-apikey-hint = 输入所选提供商的 API 密钥
+pref-qa-baseurl-hint = Ollama 服务器地址（默认：http://localhost:11434）
+pref-qa-model-hint = 为所选提供商选择模型
+pref-qa-test-btn = 测试连接
+pref-help = Grounded Q&A v{ $version } 构建于 { $time }
