@@ -5,6 +5,8 @@
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue?style=flat-square)](LICENSE)
 [![Built with Zotero Plugin Template](https://img.shields.io/badge/Built%20with-Zotero%20Plugin%20Template-blue?style=flat-square&logo=github)](https://github.com/windingwind/zotero-plugin-template)
 
+[English](README.md) | [Français](doc/README-frFR.md) | [简体中文](doc/README-zhCN.md)
+
 **Ask questions about your papers and get answers grounded in the source — every claim is cited with a clickable page link that jumps you straight to the spot in the PDF.**
 
 Grounded Q&A reads the full text of your PDFs, sends your question to the AI provider of your choice, and renders the answer with inline `[Page N]` citations. Click a citation and the reader jumps to that page. Works on a single paper open in the reader, or across multiple papers selected in your library.
