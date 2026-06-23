@@ -80,6 +80,7 @@ ${context}`;
     baseUrl,
     systemPrompt,
     question,
+    ollamaKeepAlive(provider),
   );
 }
 
@@ -126,7 +127,20 @@ ${context}`;
     baseUrl,
     systemPrompt,
     question,
+    ollamaKeepAlive(provider),
   );
+}
+
+/**
+ * Extra request-body fields for Ollama: keep the model resident in memory so
+ * follow-up questions don't pay the cold-load cost. The window is configurable
+ * via the `keepAlive` preference (e.g. "30m", "1h", "-1" for indefinite).
+ * Other providers ignore unknown fields, so we only add it for Ollama.
+ */
+function ollamaKeepAlive(provider: string): Record<string, unknown> {
+  if (provider !== "ollama") return {};
+  const keepAlive = getPref("keepAlive").trim() || "30m";
+  return { keep_alive: keepAlive };
 }
 
 /** Cap-per-paper context builder: each paper gets an equal share of the budget. */
@@ -207,6 +221,7 @@ async function callOpenAICompatibleAPI(
   baseUrl: string,
   systemPrompt: string,
   userMessage: string,
+  extraBody: Record<string, unknown> = {},
 ): Promise<string> {
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
@@ -222,6 +237,7 @@ async function callOpenAICompatibleAPI(
         { role: "system", content: systemPrompt },
         { role: "user", content: userMessage },
       ],
+      ...extraBody,
     }),
     (data) => data.choices[0].message.content as string,
   );

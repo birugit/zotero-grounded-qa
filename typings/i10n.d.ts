@@ -18,6 +18,8 @@ export type FluentMessageId =
   | 'pref-qa-apikey-label'
   | 'pref-qa-baseurl-hint'
   | 'pref-qa-baseurl-label'
+  | 'pref-qa-keepalive-hint'
+  | 'pref-qa-keepalive-label'
   | 'pref-qa-model-hint'
   | 'pref-qa-model-label'
   | 'pref-qa-provider-label'

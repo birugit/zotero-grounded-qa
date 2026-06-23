@@ -11,6 +11,7 @@ declare namespace _ZoteroTypes {
       "model": string;
       "provider": string;
       "baseUrl": string;
+      "keepAlive": string;
     };
   }
 }

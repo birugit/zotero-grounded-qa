@@ -126,6 +126,15 @@ export async function registerPrefsScripts(window: Window) {
   const baseUrlInput = doc.getElementById(
     `zotero-prefpane-${ref}-baseurl`,
   ) as HTMLInputElement | null;
+  const keepAliveRow = doc.getElementById(
+    `zotero-prefpane-${ref}-keepalive-row`,
+  ) as HTMLElement | null;
+  const keepAliveHint = doc.getElementById(
+    `zotero-prefpane-${ref}-keepalive-hint`,
+  ) as HTMLElement | null;
+  const keepAliveInput = doc.getElementById(
+    `zotero-prefpane-${ref}-keepalive`,
+  ) as HTMLInputElement | null;
   const modelMenu = doc.getElementById(`zotero-prefpane-${ref}-model`) as any;
   const testBtn = doc.getElementById(
     `zotero-prefpane-${ref}-test`,
@@ -164,9 +173,12 @@ export async function registerPrefsScripts(window: Window) {
     if (keyInput) keyInput.placeholder = cfg.keyPlaceholder;
     if (keyHintEl) keyHintEl.textContent = cfg.keyHint;
 
-    // Show/hide base URL row (Ollama only)
+    // Show/hide base URL + keep-alive rows (Ollama only)
     if (baseUrlRow) baseUrlRow.style.display = cfg.hasBaseUrl ? "" : "none";
     if (baseUrlHint) baseUrlHint.style.display = cfg.hasBaseUrl ? "" : "none";
+    if (keepAliveRow) keepAliveRow.style.display = cfg.hasBaseUrl ? "" : "none";
+    if (keepAliveHint)
+      keepAliveHint.style.display = cfg.hasBaseUrl ? "" : "none";
   }
 
   // ── Populate fields from saved prefs ──────────────────────────────────────
@@ -174,6 +186,7 @@ export async function registerPrefsScripts(window: Window) {
   if (providerSelect) providerSelect.value = savedProvider;
   if (keyInput) keyInput.value = getPref("apiKey");
   if (baseUrlInput) baseUrlInput.value = getPref("baseUrl");
+  if (keepAliveInput) keepAliveInput.value = getPref("keepAlive");
 
   updateProviderUI(savedProvider, getPref("model"));
 
@@ -207,6 +220,13 @@ export async function registerPrefsScripts(window: Window) {
   if (baseUrlInput) {
     baseUrlInput.addEventListener("input", () =>
       setPref("baseUrl", baseUrlInput.value.trim()),
+    );
+  }
+
+  // ── Keep-alive (Ollama) ───────────────────────────────────────────────────
+  if (keepAliveInput) {
+    keepAliveInput.addEventListener("input", () =>
+      setPref("keepAlive", keepAliveInput.value.trim()),
     );
   }
 
@@ -253,10 +273,13 @@ export async function registerPrefsScripts(window: Window) {
       Zotero.debug(
         `[GroundedQA] Test: provider=${provider} model=${model} url=${baseUrl}`,
       );
+      // Local models (Ollama) can take >15s to load into memory on the first
+      // request, so give them a generous timeout; remote APIs respond quickly.
+      const timeout = provider === "ollama" ? 120000 : 15000;
       const msg =
         provider === "anthropic"
-          ? await pingAnthropicAPI(apiKey, model, baseUrl)
-          : await pingOpenAICompatibleAPI(apiKey, model, baseUrl);
+          ? await pingAnthropicAPI(apiKey, model, baseUrl, timeout)
+          : await pingOpenAICompatibleAPI(apiKey, model, baseUrl, timeout);
       resultEl.textContent = `✓ ${msg}`;
       resultEl.style.color = "#080";
     } catch (e: any) {
@@ -273,6 +296,7 @@ async function pingAnthropicAPI(
   apiKey: string,
   model: string,
   baseUrl: string,
+  timeout: number,
 ): Promise<string> {
   return zoteroPing(
     `${baseUrl}/v1/messages`,
@@ -287,6 +311,7 @@ async function pingAnthropicAPI(
       messages: [{ role: "user", content: "hi" }],
     }),
     (data) => `Connected — model "${data.model ?? model}" OK`,
+    timeout,
   );
 }
 
@@ -294,6 +319,7 @@ async function pingOpenAICompatibleAPI(
   apiKey: string,
   model: string,
   baseUrl: string,
+  timeout: number,
 ): Promise<string> {
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
@@ -308,6 +334,7 @@ async function pingOpenAICompatibleAPI(
       messages: [{ role: "user", content: "hi" }],
     }),
     (data) => `Connected — model "${data.model ?? model}" OK`,
+    timeout,
   );
 }
 
@@ -316,6 +343,7 @@ async function zoteroPing(
   headers: Record<string, string>,
   body: string,
   onSuccess: (data: any) => string,
+  timeout: number,
 ): Promise<string> {
   let xhr: any;
   try {
@@ -323,7 +351,7 @@ async function zoteroPing(
     xhr = await (Zotero.HTTP as any).request("POST", url, {
       headers,
       body,
-      timeout: 15000,
+      timeout,
       successCodes: false,
     });
   } catch (e: any) {

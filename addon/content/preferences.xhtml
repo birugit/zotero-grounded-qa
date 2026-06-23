@@ -85,6 +85,31 @@
     style="font-size: 11px; color: gray; margin: 2px 0 8px 0; display: none"
   ></html:p>
 
+  <!-- Keep-alive (shown only for Ollama) -->
+  <hbox
+    id="zotero-prefpane-__addonRef__-keepalive-row"
+    align="center"
+    style="margin-bottom: 4px; display: none"
+  >
+    <html:label
+      for="zotero-prefpane-__addonRef__-keepalive"
+      data-l10n-id="pref-qa-keepalive-label"
+      style="min-width: 130px"
+    ></html:label>
+    <html:input
+      type="text"
+      id="zotero-prefpane-__addonRef__-keepalive"
+      preference="extensions.zotero.__addonRef__.keepAlive"
+      placeholder="30m"
+      style="flex: 1; font-family: monospace"
+    ></html:input>
+  </hbox>
+  <html:p
+    id="zotero-prefpane-__addonRef__-keepalive-hint"
+    data-l10n-id="pref-qa-keepalive-hint"
+    style="font-size: 11px; color: gray; margin: 2px 0 8px 0; display: none"
+  ></html:p>
+
   <!-- Model dropdown — all models are hardcoded; JS shows/hides by provider -->
   <hbox align="center" style="margin-bottom: 12px">
     <html:label
