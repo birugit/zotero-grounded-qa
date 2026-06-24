@@ -1,7 +1,7 @@
 {
   "name": "zotero-grounded-qa",
   "type": "module",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Grounded Q&A with page-jump citations for Zotero, powered by  AI",
   "config": {
     "addonName": "Grounded Q&A",
