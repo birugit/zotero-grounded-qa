@@ -31,6 +31,7 @@ Configure the following:
 | **AI Provider**     | Choose your provider — Anthropic (Claude), OpenAI (GPT), Ollama (local), DeepSeek, or Grok (xAI).                                             |
 | **API Key**         | Paste your key. The label and placeholder update to match the provider. Click **Show** to reveal what you typed. _(Not required for Ollama.)_ |
 | **Base URL**        | Only appears for Ollama — defaults to `http://localhost:11434`.                                                                               |
+| **Keep model loaded** | Only appears for Ollama — how long the model stays in memory after a request (e.g. `30m`, `1h`, `-1` for indefinite). Defaults to `30m`. Keeping it loaded avoids the cold-load delay on follow-up questions. |
 | **Model**           | Pick a model from the list for the selected provider.                                                                                         |
 | **Test connection** | Click to verify your provider, key, and model. On success you'll see `✓ Connected — model "…" OK`.                                            |
 
@@ -111,6 +112,7 @@ This lets you trace any statement back to its exact source in seconds, instead o
 | **Test connection fails (401)**               | Wrong or expired API key.                                                                           |
 | **Test connection fails (404 / model error)** | The selected model isn't available on your account — pick another.                                  |
 | **Ollama not responding**                     | Make sure the server is running (`ollama serve`) and the model is pulled (`ollama pull llama3.2`).  |
+| **Ollama Test connection times out**          | The first request loads the model into memory and can take a while. The test allows up to 120s for Ollama; if it still times out, warm the model once (`ollama run llama3.2`) then retry. Increase **Keep model loaded** (e.g. `1h` or `-1`) so it stays resident. |
 | **Multi-paper menu missing**                  | Select **2+ items that each have a PDF** attachment.                                                |
 
 For deeper diagnostics, open **Help → Debug Output Logging → View Output** and look for lines starting with `[GroundedQA]`.
