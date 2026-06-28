@@ -2,6 +2,9 @@ import { getString, initLocale } from "./utils/locale";
 import { registerPrefsScripts } from "./modules/preferenceScript";
 import { createZToolkit } from "./utils/ztoolkit";
 import { QAPanelFactory } from "./modules/qaPanel";
+import { AnnotationIndex } from "./modules/annotationIndex";
+import { AnnotationPanelFactory } from "./modules/annotationPanel";
+import { IdeaPanelFactory } from "./modules/ideaPanel";
 
 async function onStartup() {
   await Promise.all([
@@ -20,6 +23,10 @@ async function onStartup() {
   });
 
   QAPanelFactory.registerQASection();
+
+  // Cross-paper annotation layer: register the Notifier observer so the index
+  // stays fresh as annotations are added/edited/removed anywhere in the library.
+  AnnotationIndex.init();
 
   await Promise.all(
     Zotero.getMainWindows().map((win) => onMainWindowLoad(win)),
@@ -47,6 +54,8 @@ async function onMainWindowLoad(win: _ZoteroTypes.MainWindow): Promise<void> {
     .show();
 
   QAPanelFactory.registerMultiPaperMenuItem();
+  AnnotationPanelFactory.registerMenu();
+  IdeaPanelFactory.registerMenu();
 }
 
 async function onMainWindowUnload(win: Window): Promise<void> {
@@ -56,6 +65,7 @@ async function onMainWindowUnload(win: Window): Promise<void> {
 
 function onShutdown(): void {
   ztoolkit.unregisterAll();
+  AnnotationIndex.unload();
   addon.data.dialog?.window?.close();
   addon.data.alive = false;
   // @ts-expect-error - Plugin instance is not typed

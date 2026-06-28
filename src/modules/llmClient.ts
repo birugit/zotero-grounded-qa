@@ -64,8 +64,9 @@ export async function askGroundedQuestion(
 
   const systemPrompt = `You are a research assistant answering questions about a document.
 The document text is provided below with page markers like [Page N].
-When referencing specific information, always cite the page number inline using the format [Page N].
+When referencing specific information, always cite the page number inline using the exact format [Page N] (square brackets, e.g. [Page 3]).
 If a fact spans multiple pages, cite each one. Be concise and accurate.
+Do NOT use author-year citations or a reference list (e.g. "[Smith, 2024]"). The only citations allowed are [Page N].
 If the answer is not found in the document, say so clearly.
 
 Document:
@@ -110,23 +111,35 @@ export async function askGroundedQuestionMultiple(
 
   const systemPrompt = `You are a research assistant answering a question across multiple documents.
 Each document is labeled like [Paper N: "Title"], and its text is divided into pages marked [Page M].
-When you reference information, you MUST cite it inline using the exact format [Paper N, Page M] (for example [Paper 2, Page 5]).
-If a fact spans several pages of the same paper, cite each page like [Paper 1, Page 3, 4].
-Cite every claim you make. Compare and contrast the papers where relevant.
-If the answer is not found in the provided documents, say so clearly.
+
+CITATION RULES (these are mandatory and the most important part of your task):
+- Every sentence that states a fact MUST end with an inline citation in the EXACT format [Paper N, Page M] — for example [Paper 2, Page 5].
+- Use square brackets. Always include both the Paper number and the Page number. Do NOT write citations any other way (no "(Paper 2, p.5)", no footnotes, no "according to Paper 2").
+- If a fact spans several pages of the same paper, write [Paper 1, Page 3, 4].
+- Do not produce a citation-free summary. An answer with no [Paper N, Page M] citations is invalid.
+- Do NOT use author-year citations or a reference/bibliography list (e.g. "[Smith et al., 2024]" or "[LangGraph Documentation, 2024]"). The ONLY thing allowed inside square brackets is "Paper N, Page M". Never put a source name in brackets.
+- Compare and contrast the papers where relevant.
+- If the answer is not found in the provided documents, say so clearly.
+
+Example of a correct answer:
+"Method A outperformed Method B on the benchmark [Paper 1, Page 4]. However, the second study reported the opposite under noisy conditions [Paper 2, Page 7]."
 
 Documents:
 ${context}`;
 
+  const userMessage = `${question}
+
+Remember: cite every fact inline using the exact format [Paper N, Page M].`;
+
   if (provider === "anthropic") {
-    return callAnthropicAPI(apiKey, model, baseUrl, systemPrompt, question);
+    return callAnthropicAPI(apiKey, model, baseUrl, systemPrompt, userMessage);
   }
   return callOpenAICompatibleAPI(
     apiKey,
     model,
     baseUrl,
     systemPrompt,
-    question,
+    userMessage,
     ollamaKeepAlive(provider),
   );
 }
