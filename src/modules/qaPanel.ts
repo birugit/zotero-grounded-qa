@@ -1,19 +1,29 @@
-import { getLocaleID } from "../utils/locale";
+import { getLocaleID, getString } from "../utils/locale";
 import { extractPDFPages, findPdfAttachmentID } from "./pdfExtractor";
 import {
   askGroundedQuestion,
   askGroundedQuestionMultiple,
   PaperSource,
 } from "./llmClient";
+import { saveNoteAnnotation } from "./annotationWriter";
 
+// Citation patterns. Kept tolerant of the model's formatting drift: optional
+// whitespace, "Page"/"Pages"/"p."/"pp.", and case-insensitive — so e.g.
+// "[Page 5]", "[Pages 5, 6]", "[ page 5 ]" all match.
 // Splitting pattern - capturing group ensures the delimiter is kept in the array
-const CITATION_SPLIT_RE = /(\[Page \d+(?:,\s*\d+)*\])/g;
+const CITATION_SPLIT_RE =
+  /(\[\s*(?:Pages?|pp?\.?)\s*\d+(?:\s*,\s*\d+)*\s*\])/gi;
 // Non-global version for testing individual parts
-const CITATION_TEST_RE = /^\[Page \d+(?:,\s*\d+)*\]$/;
+const CITATION_TEST_RE = /^\[\s*(?:Pages?|pp?\.?)\s*\d+(?:\s*,\s*\d+)*\s*\]$/i;
 
-// Multi-paper citations look like [Paper 2, Page 5] or [Paper 1, Page 3, 4]
-const MULTI_CITATION_SPLIT_RE = /(\[Paper \d+, Page \d+(?:,\s*\d+)*\])/g;
-const MULTI_CITATION_TEST_RE = /^\[Paper \d+, Page \d+(?:,\s*\d+)*\]$/;
+// Multi-paper citations. Models often DON'T bracket them — they write
+// "according to Paper 2, page 1, ..." as prose — so the surrounding brackets
+// are optional. Spacing/case/"Pages" are flexible. A space after "Paper" and
+// after "Page" is required so we don't match unrelated text.
+const MULTI_CITATION_SPLIT_RE =
+  /(\[?Paper\s+\d+\s*,?\s*(?:Pages?|pp?\.?)\s+\d+(?:\s*,\s*\d+)*\s*\]?)/gi;
+const MULTI_CITATION_TEST_RE =
+  /^\[?Paper\s+\d+\s*,?\s*(?:Pages?|pp?\.?)\s+\d+(?:\s*,\s*\d+)*\s*\]?$/i;
 
 export class QAPanelFactory {
   // ── Multi-paper Q&A ────────────────────────────────────────────────────────
@@ -22,7 +32,7 @@ export class QAPanelFactory {
     ztoolkit.Menu.register("item", {
       tag: "menuitem",
       id: "zotero-itemmenu-grounded-qa-multi",
-      label: "Q&A: Ask across selected papers",
+      label: getString("qa-multi-menu-label"),
       icon: `chrome://${addon.data.config.addonRef}/content/icons/favicon@0.5x.png`,
       getVisibility: () => {
         const items: Zotero.Item[] = ztoolkit
@@ -170,7 +180,7 @@ export class QAPanelFactory {
         },
       })
       .addButton("Close", "gqa-close")
-      .open("Grounded Q&A — Multiple Papers");
+      .open(getString("qa-multi-window-title"));
   }
 
   private static async runMultiPaperQuery(
@@ -195,6 +205,7 @@ export class QAPanelFactory {
     try {
       const answer = await askGroundedQuestionMultiple(question, papers);
       QAPanelFactory.renderMultiAnswer(answerEl, answer, papers);
+      QAPanelFactory.appendMultiSaveButton(answerEl, papers, question, answer);
     } catch (e: any) {
       answerEl.textContent = e.message?.includes("API key not set")
         ? "⚠ No API key — set one in Settings → Grounded Q&A."
@@ -251,8 +262,8 @@ export class QAPanelFactory {
     paperNumber: number;
     pages: number[];
   } {
-    const paperMatch = citation.match(/Paper (\d+)/);
-    const pagePart = citation.match(/Page ([\d,\s]+)/);
+    const paperMatch = citation.match(/Paper\s*(\d+)/i);
+    const pagePart = citation.match(/(?:Pages?|pp?\.?)\s*([\d,\s]+)/i);
     const pages = pagePart ? (pagePart[1].match(/\d+/g) || []).map(Number) : [];
     return {
       paperNumber: paperMatch ? Number(paperMatch[1]) : 0,
@@ -265,10 +276,137 @@ export class QAPanelFactory {
     pageIndex: number,
   ) {
     try {
+      // Reuse an already-open reader for this attachment if there is one,
+      // otherwise open a new tab at the cited page.
+      const readers: any[] = (Zotero.Reader as any)._readers ?? [];
+      for (const r of readers) {
+        if (r.itemID === attachmentItemID) {
+          await r.navigate({ pageIndex });
+          return;
+        }
+      }
       await (Zotero.Reader as any).open(attachmentItemID, { pageIndex });
     } catch (e) {
       ztoolkit.log("Multi-paper page jump failed:", e);
     }
+  }
+
+  /**
+   * Append a "Save as annotations" button under a multi-paper answer. Each
+   * paper cited in the answer gets a page-anchored note annotation holding the
+   * Q&A, so cross-paper insights land in the All Annotations browser too.
+   */
+  private static appendMultiSaveButton(
+    container: HTMLElement,
+    papers: PaperSource[],
+    question: string,
+    answer: string,
+  ) {
+    const doc = container.ownerDocument!;
+    // The multi-paper answer lives in a ztoolkit Dialog (XHTML window) where
+    // createElement("button") can yield a blank XUL button; force HTML namespace.
+    const btn = doc.createElementNS(
+      "http://www.w3.org/1999/xhtml",
+      "button",
+    ) as HTMLButtonElement;
+    btn.textContent = "📌 Save all to annotations";
+    btn.style.cssText =
+      "appearance:none;-moz-appearance:none;color:#111;" +
+      "margin-top:8px;padding:4px 10px;cursor:pointer;font-size:12px;" +
+      "border:1px solid #bbb;border-radius:4px;background:#f0f0f0;";
+    btn.addEventListener("click", async () => {
+      btn.disabled = true;
+      const original = btn.textContent;
+      btn.textContent = "Saving…";
+      try {
+        const result = await QAPanelFactory.saveMultiAnnotations(
+          papers,
+          question,
+          answer,
+        );
+        if (result.created === 0) {
+          btn.disabled = false;
+          btn.textContent = original;
+          const note = doc.createElement("div");
+          note.style.cssText = "color:#c00;font-size:11px;margin-top:4px;";
+          note.textContent = result.errors.length
+            ? result.errors.join("; ")
+            : "Couldn't save: no PDF attachments to annotate.";
+          container.appendChild(note);
+          return;
+        }
+        btn.textContent = `✓ Saved ${result.created} annotation${result.created === 1 ? "" : "s"}`;
+        btn.style.borderColor = "#3a3";
+        btn.style.color = "#2a7a2a";
+        if (result.usedFallback) {
+          const hint = doc.createElement("div");
+          hint.style.cssText = "color:#777;font-size:11px;margin-top:4px;";
+          hint.textContent =
+            "Note: the answer had no page citations, so each paper was anchored at page 1.";
+          container.appendChild(hint);
+        }
+        for (const err of result.errors) {
+          const e = doc.createElement("div");
+          e.style.cssText = "color:#c00;font-size:11px;margin-top:4px;";
+          e.textContent = err;
+          container.appendChild(e);
+        }
+      } catch (e: any) {
+        btn.disabled = false;
+        btn.textContent = original;
+        ztoolkit.log("Multi-paper save annotation failed:", e);
+      }
+    });
+    container.appendChild(btn);
+  }
+
+  /**
+   * Save the Q&A as note annotations. When the answer contains [Paper N, Page M]
+   * citations we anchor each cited paper to its first cited page. When it has
+   * none (e.g. the model returned a plain summary), we fall back to anchoring
+   * the Q&A on every paper in the query at page 1 so the insight still reaches
+   * the annotation layer.
+   */
+  private static async saveMultiAnnotations(
+    papers: PaperSource[],
+    question: string,
+    answer: string,
+  ): Promise<{ created: number; errors: string[]; usedFallback: boolean }> {
+    // Group the cited pages by paper number.
+    const firstPageByPaper = new Map<number, number>();
+    const re = /\[?Paper\s+(\d+)\s*,?\s*(?:Pages?|pp?\.?)\s+(\d+)/gi;
+    let m: RegExpExecArray | null;
+    while ((m = re.exec(answer)) !== null) {
+      const paperNum = Number(m[1]);
+      const page = Number(m[2]);
+      if (!firstPageByPaper.has(paperNum)) firstPageByPaper.set(paperNum, page);
+    }
+
+    // Fallback: no parseable citations → anchor every queried paper at page 1.
+    const usedFallback = firstPageByPaper.size === 0;
+    if (usedFallback) {
+      for (const p of papers) firstPageByPaper.set(p.number, 1);
+    }
+
+    let created = 0;
+    const errors: string[] = [];
+    for (const [paperNum, page] of firstPageByPaper) {
+      const paper = papers.find((p) => p.number === paperNum);
+      if (!paper) continue;
+      try {
+        const attachment = Zotero.Items.get(paper.attachmentItemID);
+        await saveNoteAnnotation({
+          item: attachment,
+          pageNumber: page,
+          comment: `Q: ${question}\n\nA: ${answer}`,
+          tags: ["grounded-qa"],
+        });
+        created++;
+      } catch (e: any) {
+        errors.push(`"${paper.title.slice(0, 40)}" — ${e.message}`);
+      }
+    }
+    return { created, errors, usedFallback };
   }
 
   static registerQASection() {
@@ -357,6 +495,7 @@ export class QAPanelFactory {
         const askBtn = doc.createElement("button");
         askBtn.textContent = "Ask";
         askBtn.style.cssText =
+          "appearance:none;-moz-appearance:none;color:#111;" +
           "flex:1;padding:5px 10px;cursor:pointer;" +
           "border-radius:4px;border:1px solid #bbb;background:#f0f0f0;font-size:12px;";
         btnRow.appendChild(askBtn);
@@ -364,6 +503,7 @@ export class QAPanelFactory {
         const clearBtn = doc.createElement("button");
         clearBtn.textContent = "Clear";
         clearBtn.style.cssText =
+          "appearance:none;-moz-appearance:none;color:#111;" +
           "padding:5px 10px;cursor:pointer;" +
           "border-radius:4px;border:1px solid #bbb;background:#f0f0f0;font-size:12px;";
         btnRow.appendChild(clearBtn);
@@ -410,6 +550,12 @@ export class QAPanelFactory {
             statusEl.textContent = `Found ${pages.length} pages. Asking Claude...`;
             const answer = await askGroundedQuestion(question, pages);
             QAPanelFactory.renderAnswer(answerEl, answer, currentItem);
+            QAPanelFactory.appendSaveAnnotationButton(
+              answerEl,
+              currentItem,
+              question,
+              answer,
+            );
           } catch (e: any) {
             const errDiv = doc.createElement("div");
             if (e.message.includes("API key not set")) {
@@ -474,6 +620,58 @@ export class QAPanelFactory {
     }
 
     container.appendChild(wrapper);
+  }
+
+  /**
+   * Append a "Save as annotation" button under a rendered answer. Clicking it
+   * writes the Q&A as a page-anchored note annotation on the source PDF, so it
+   * shows up in the All Annotations browser.
+   */
+  private static appendSaveAnnotationButton(
+    container: HTMLElement,
+    item: Zotero.Item,
+    question: string,
+    answer: string,
+  ) {
+    const doc = container.ownerDocument!;
+    const btn = doc.createElement("button");
+    btn.textContent = "📌 Save to annotations";
+    btn.style.cssText =
+      "appearance:none;-moz-appearance:none;color:#111;" +
+      "margin-top:8px;padding:4px 10px;cursor:pointer;font-size:12px;" +
+      "border:1px solid #bbb;border-radius:4px;background:#f0f0f0;";
+    btn.addEventListener("click", async () => {
+      btn.disabled = true;
+      const original = btn.textContent;
+      btn.textContent = "Saving…";
+      try {
+        const page = QAPanelFactory.firstCitedPage(answer) ?? 1;
+        await saveNoteAnnotation({
+          item,
+          pageNumber: page,
+          comment: `Q: ${question}\n\nA: ${answer}`,
+          tags: ["grounded-qa"],
+        });
+        btn.textContent = `✓ Saved to annotations (p. ${page})`;
+        btn.style.borderColor = "#3a3";
+        btn.style.color = "#2a7a2a";
+      } catch (e: any) {
+        btn.disabled = false;
+        btn.textContent = original;
+        const err = doc.createElement("div");
+        err.style.cssText = "color:#c00;font-size:11px;margin-top:4px;";
+        err.textContent = `Couldn't save: ${e.message}`;
+        container.appendChild(err);
+        ztoolkit.log("save annotation failed:", e);
+      }
+    });
+    container.appendChild(btn);
+  }
+
+  /** First page number cited in an answer, e.g. "[Page 5, 6]" → 5. */
+  private static firstCitedPage(answer: string): number | null {
+    const m = answer.match(/\[\s*(?:Pages?|pp?\.?)\s*(\d+)/i);
+    return m ? Number(m[1]) : null;
   }
 
   /** Extract all page numbers from a citation like "[Page 3, 5]" */

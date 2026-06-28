@@ -3,6 +3,10 @@
 /* eslint-disable */
 // @ts-nocheck
 export type FluentMessageId =
+  | 'annotations-menu-label'
+  | 'annotations-window-title'
+  | 'idea-menu-label'
+  | 'idea-window-title'
   | 'item-info-row-example-label'
   | 'item-section-example1-head-text'
   | 'item-section-example1-sidenav-tooltip'
@@ -28,6 +32,8 @@ export type FluentMessageId =
   | 'prefs-table-detail'
   | 'prefs-table-title'
   | 'prefs-title'
+  | 'qa-multi-menu-label'
+  | 'qa-multi-window-title'
   | 'qa-panel-header'
   | 'qa-panel-sidenav-tooltip'
   | 'startup-begin'
