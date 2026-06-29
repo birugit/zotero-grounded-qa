@@ -4,10 +4,17 @@ All notable changes to this project are documented here. The format is based on
 [Keep a Changelog](https://keepachangelog.com/), and the project follows
 [Semantic Versioning](https://semver.org/).
 
-## [1.1.0] — 2026-06-27
+> Version note: this release jumps to **4.0.0**. The repository was forked from
+> the upstream Zotero plugin template, whose git history already carried version
+> tags up to `v3.1.0`. Releasing above those avoids tag collisions; the number
+> is not meaningful beyond "newer than everything before it."
 
-Renamed from **Grounded Q&A** to **Lattice**, reflecting an expanded scope from
-an AI Q&A tool to a cross-paper annotation and idea platform.
+## [4.0.0] — 2026-06-28
+
+First release as **Lattice** (renamed from **Grounded Q&A**), reflecting an
+expanded scope from an AI Q&A tool to a cross-paper annotation and idea
+platform. Functionally this is the "1.1.0" milestone; see the version note above
+for why it ships as 4.0.0.
 
 ### Added
 
