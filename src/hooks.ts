@@ -5,6 +5,7 @@ import { QAPanelFactory } from "./modules/qaPanel";
 import { AnnotationIndex } from "./modules/annotationIndex";
 import { AnnotationPanelFactory } from "./modules/annotationPanel";
 import { IdeaPanelFactory } from "./modules/ideaPanel";
+import { OutlinePanelFactory } from "./modules/outlinePanel";
 
 async function onStartup() {
   await Promise.all([
@@ -56,6 +57,7 @@ async function onMainWindowLoad(win: _ZoteroTypes.MainWindow): Promise<void> {
   QAPanelFactory.registerMultiPaperMenuItem();
   AnnotationPanelFactory.registerMenu();
   IdeaPanelFactory.registerMenu();
+  OutlinePanelFactory.registerMenu();
 }
 
 async function onMainWindowUnload(win: Window): Promise<void> {

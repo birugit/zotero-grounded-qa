@@ -14,6 +14,7 @@ import { AnnotationIndex, AnnRecord } from "./annotationIndex";
 import { copyToClipboard, exportToStandaloneNote } from "./annotationExport";
 import { IdeaLayer } from "./ideaLayer";
 import { IdeaPanelFactory } from "./ideaPanel";
+import { OutlinePanelFactory } from "./outlinePanel";
 import { getTheme, Palette } from "./theme";
 import { getString } from "../utils/locale";
 
@@ -130,9 +131,10 @@ export class AnnotationPanelFactory {
   // ── UI construction ──────────────────────────────────────────────────────
 
   /**
-   * Two tabs in one window: "Annotations" (the cross-paper highlight browser)
-   * and "Ideas" (the Citavi idea layer). The Ideas pane is rendered lazily on
-   * first activation.
+   * Three tabs in one window: "Annotations" (the cross-paper highlight browser),
+   * "Ideas" (the Citavi idea layer) and "Organizer" (the knowledge-organizer
+   * outline). The Ideas and Organizer panes are rendered lazily on activation so
+   * they always reflect the latest filing.
    */
   private static buildTabbedUI(
     doc: Document,
@@ -146,51 +148,68 @@ export class AnnotationPanelFactory {
     root.style.color = t.text;
 
     const tabBar = doc.createElement("div");
-    tabBar.style.cssText =
-      `display:flex;gap:4px;border-bottom:2px solid ${t.border};flex:0 0 auto;`;
+    tabBar.style.cssText = `display:flex;gap:4px;border-bottom:2px solid ${t.border};flex:0 0 auto;`;
     root.appendChild(tabBar);
 
-    const annPane = doc.createElement("div");
-    annPane.style.cssText =
-      "display:flex;flex-direction:column;gap:8px;flex:1;min-height:0;";
-    const ideaPane = doc.createElement("div");
-    ideaPane.style.cssText =
-      "display:none;flex-direction:column;gap:8px;flex:1;min-height:0;";
-    root.appendChild(annPane);
-    root.appendChild(ideaPane);
+    // Each tab pairs a header with a pane and, for the lazily-rendered ones, a
+    // render callback that runs every time the tab is activated.
+    interface Tab {
+      label: string;
+      pane: HTMLElement;
+      render?: () => void;
+      el?: HTMLElement;
+    }
+    const tabs: Tab[] = [
+      { label: "📑 Annotations", pane: doc.createElement("div") },
+      {
+        label: "🧠 Ideas",
+        pane: doc.createElement("div"),
+        render: (): void => {
+          const tab = tabs[1];
+          tab.pane.textContent = "";
+          IdeaPanelFactory.renderInto(doc, tab.pane);
+        },
+      },
+      {
+        label: "🗂 Organizer",
+        pane: doc.createElement("div"),
+        render: (): void => {
+          const tab = tabs[2];
+          tab.pane.textContent = "";
+          OutlinePanelFactory.renderInto(doc, tab.pane);
+        },
+      },
+    ];
 
-    const mkTab = (label: string) => {
+    for (const tab of tabs) {
+      tab.pane.style.cssText =
+        "display:none;flex-direction:column;gap:8px;flex:1;min-height:0;";
+      root.appendChild(tab.pane);
       const el = doc.createElement("div");
-      el.textContent = label;
+      el.textContent = tab.label;
       tabBar.appendChild(el);
-      return el;
-    };
-    const annTab = mkTab("📑 Annotations");
-    const ideaTab = mkTab("🧠 Ideas");
+      tab.el = el;
+    }
 
-    const setActive = (which: "ann" | "idea") => {
-      const active = `background:${t.panel};border-color:${t.border};color:${t.text};font-weight:600;`;
-      const inactive = `border-color:transparent;color:${t.sub};font-weight:400;background:transparent;`;
+    const setActive = (active: Tab) => {
+      const on = `background:${t.panel};border-color:${t.border};color:${t.text};font-weight:600;`;
+      const off = `border-color:transparent;color:${t.sub};font-weight:400;background:transparent;`;
       const base =
         "padding:6px 14px;cursor:pointer;font-size:13px;" +
         "border:1px solid transparent;border-bottom:none;" +
         "border-radius:6px 6px 0 0;margin-bottom:-2px;";
-      annTab.style.cssText = base + (which === "ann" ? active : inactive);
-      ideaTab.style.cssText = base + (which === "idea" ? active : inactive);
-      annPane.style.display = which === "ann" ? "flex" : "none";
-      ideaPane.style.display = which === "idea" ? "flex" : "none";
-      // Re-render the Ideas pane on each activation so newly promoted ideas
-      // always show (and to pick up edits made in Zotero).
-      if (which === "idea") {
-        ideaPane.textContent = "";
-        IdeaPanelFactory.renderInto(doc, ideaPane);
+      for (const tab of tabs) {
+        tab.el!.style.cssText = base + (tab === active ? on : off);
+        tab.pane.style.display = tab === active ? "flex" : "none";
       }
+      if (active.render) active.render();
     };
-    annTab.addEventListener("click", () => setActive("ann"));
-    ideaTab.addEventListener("click", () => setActive("idea"));
 
-    this.buildUI(doc, annPane, state);
-    setActive("ann");
+    for (const tab of tabs)
+      tab.el!.addEventListener("click", () => setActive(tab));
+
+    this.buildUI(doc, tabs[0].pane, state);
+    setActive(tabs[0]);
   }
 
   private static buildUI(doc: Document, root: HTMLElement, state: PanelState) {
@@ -217,8 +236,7 @@ export class AnnotationPanelFactory {
       lbl.style.cssText = `color:${t.sub};`;
       libRow.appendChild(lbl);
       const libSel = doc.createElement("select");
-      libSel.style.cssText =
-        `flex:1;padding:5px 6px;border:1px solid ${t.border};border-radius:4px;font-size:13px;background:${t.inputBg};color:${t.text};`;
+      libSel.style.cssText = `flex:1;padding:5px 6px;border:1px solid ${t.border};border-radius:4px;font-size:13px;background:${t.inputBg};color:${t.text};`;
       for (const lib of libraries) {
         const o = doc.createElement("option");
         o.value = String(lib.libraryID);
@@ -257,8 +275,7 @@ export class AnnotationPanelFactory {
     const search = doc.createElement("input");
     search.type = "search";
     search.placeholder = "Search text, comments, title, tags…";
-    search.style.cssText =
-      `flex:1;padding:5px 8px;border:1px solid ${t.border};border-radius:4px;font-size:13px;background:${t.inputBg};color:${t.text};`;
+    search.style.cssText = `flex:1;padding:5px 8px;border:1px solid ${t.border};border-radius:4px;font-size:13px;background:${t.inputBg};color:${t.text};`;
     search.addEventListener("input", () => {
       state.keyword = search.value;
       state.renderLimit = RENDER_CAP;
@@ -267,8 +284,7 @@ export class AnnotationPanelFactory {
     row1.appendChild(search);
 
     const typeSel = doc.createElement("select");
-    typeSel.style.cssText =
-      `padding:5px 6px;border:1px solid ${t.border};border-radius:4px;font-size:13px;background:${t.inputBg};color:${t.text};`;
+    typeSel.style.cssText = `padding:5px 6px;border:1px solid ${t.border};border-radius:4px;font-size:13px;background:${t.inputBg};color:${t.text};`;
     for (const [val, label] of [
       ["", "All types"],
       ["highlight", "Highlights"],
@@ -333,8 +349,7 @@ export class AnnotationPanelFactory {
       lbl.style.cssText = `color:${t.sub};`;
       row3.appendChild(lbl);
       const tagSel = doc.createElement("select");
-      tagSel.style.cssText =
-        `flex:1;padding:5px 6px;border:1px solid ${t.border};border-radius:4px;background:${t.inputBg};color:${t.text};`;
+      tagSel.style.cssText = `flex:1;padding:5px 6px;border:1px solid ${t.border};border-radius:4px;background:${t.inputBg};color:${t.text};`;
       const none = doc.createElement("option");
       none.value = "";
       none.textContent = `All tags (${tags.length})`;
@@ -408,8 +423,7 @@ export class AnnotationPanelFactory {
 
     // List ------------------------------------------------------------------
     const list = doc.createElement("div");
-    list.style.cssText =
-      `flex:1;overflow-y:auto;border:1px solid ${t.border};border-radius:4px;`;
+    list.style.cssText = `flex:1;overflow-y:auto;border:1px solid ${t.border};border-radius:4px;`;
     root.appendChild(list);
 
     const empty = doc.createElement("div");
@@ -463,10 +477,7 @@ export class AnnotationPanelFactory {
     row.style.cssText =
       `display:flex;gap:8px;padding:8px 10px;border-bottom:1px solid ${t.border};` +
       "cursor:pointer;";
-    row.addEventListener(
-      "mouseenter",
-      () => (row.style.background = t.hover),
-    );
+    row.addEventListener("mouseenter", () => (row.style.background = t.hover));
     row.addEventListener("mouseleave", () => (row.style.background = ""));
     row.addEventListener("click", () => this.jumpTo(rec));
 
@@ -489,8 +500,7 @@ export class AnnotationPanelFactory {
     if (rec.comment) {
       const note = doc.createElement("div");
       note.textContent = rec.comment;
-      note.style.cssText =
-        `color:${t.sub};font-style:italic;white-space:pre-wrap;margin-bottom:2px;`;
+      note.style.cssText = `color:${t.sub};font-style:italic;white-space:pre-wrap;margin-bottom:2px;`;
       body.appendChild(note);
     }
 

@@ -7,7 +7,7 @@
 
 [English](README.md) | [Français](doc/README-frFR.md) | [简体中文](doc/README-zhCN.md)
 
-**Lattice gets your annotations and ideas out of the per-paper silo.** See every highlight across your whole library in one place, filter and export them with citations, and promote the ones that matter into a searchable, taggable, cross-linked idea layer — all while staying linked to the source. It also includes grounded AI Q&A that answers from your PDFs with clickable page citations.
+**Lattice gets your annotations and ideas out of the per-paper silo.** See every highlight across your whole library in one place, filter and export them with citations, and promote the ones that matter into a searchable, taggable, cross-linked idea layer — all while staying linked to the source. Outline your paper and Lattice gathers every quote and note you filed under each heading into a first draft. It also includes grounded AI Q&A that answers from your PDFs with clickable page citations.
 
 > The name: a _lattice_ is a network of connected nodes — which is exactly what your ideas become once they're no longer trapped in the single paper they came from.
 
@@ -33,6 +33,14 @@
 - **Browse the layer** in its own tab — your thinking is reachable independently of the paper it came from, which is what breaks down past a few hundred sources.
 
 ![Lattice idea layer — ideas with tags, links to other ideas, and a link back to the source](doc/Citave.png)
+
+### 📚 Knowledge Organizer (Citavi-style outline → draft)
+
+- **Outline first, then fill it in** — build the heading structure of your book, paper, or literature review, then file quotes and notes under each heading as you read.
+- **A heading is just a tag** — each heading is a real Zotero tag (prefixed `§`), so you can file a highlight under a heading straight from Zotero's own annotation tag box while reading, and it's gathered automatically — no separate mode to switch into.
+- **Generate a first draft** — Lattice gathers everything under every heading, in outline order, with citations, into a Markdown/HTML document or a standalone Zotero note. No copy-pasting, no endless text shuffling.
+
+![Lattice Knowledge Organizer — an outline of headings with quotes and notes filed under each, gathered into a first draft](doc/KnowledgeOrganizer.png)
 
 ### 💬 Grounded AI Q&A
 
@@ -70,6 +78,16 @@
 1. In the same window, switch to the **🧠 Ideas** tab (or **Tools → Idea Layer (Citavi)**).
 2. **➕ New idea**, or work with promoted ones: add/remove tags inline, **📄 Open source**, **🔗 Link to…** another idea, **🗑 Delete**.
 3. Ideas are ordinary Zotero notes tagged `★idea` — so they're fully searchable and taggable in Zotero itself and they sync.
+
+### Organize into a draft
+
+1. **Tools → Knowledge Organizer** (or the **🗂 Organizer** tab in the **All Annotations** window).
+2. Build your outline: **➕ Add heading**, then **✎** rename, **▲ ▼** reorder among siblings, and **⭲ / ⭰** indent / outdent to nest sub-headings.
+3. File sources under a heading two ways:
+   - **In the panel** — select a heading, then under **"File a quote or note here"** search your annotations and click **File here**.
+   - **While reading** — in Zotero's reader, add the heading's tag (shown under the heading, e.g. `§Introduction`) to any highlight. It appears under that heading automatically.
+4. Click **📄 Generate draft** → preview it, toggle **Markdown / HTML**, optionally tick **Include empty headings**, then **📋 Copy** or **📝 Save as note**.
+5. **Rename** a heading and every quote filed under it follows the rename; **delete** a heading and your items keep their tags — nothing filed is lost.
 
 ### Ask grounded questions
 
@@ -118,6 +136,7 @@ All cloud providers are called through their OpenAI-compatible `/v1/chat/complet
 
 - **Annotations** are read library-wide from Zotero's data model (each highlight is an `annotation` item under its PDF), indexed in memory, and kept fresh via Zotero's Notifier.
 - **Ideas** are native standalone notes tagged `★idea`; links use Zotero's own item-relation system, so nothing lives in a private database.
+- **The Knowledge Organizer** stores your outline as a single native note tagged `★outline` (the heading tree as JSON), and every heading is an ordinary Zotero tag (prefixed `§`). So the outline and everything filed under it sync like any other item, and filing works from Zotero's own reader — again, no private database.
 - **Q&A** extracts per-page PDF text via `PDFWorker`, builds a context with `[Page N]` markers, asks your chosen provider to cite every claim, and turns the citations into clickable links. Answers can be saved as page-anchored note annotations.
 
 ---
@@ -140,11 +159,14 @@ src/
   hooks.ts                       # Plugin lifecycle + menu registration
   modules/
     annotationIndex.ts           # Library-wide annotation index + Notifier
-    annotationPanel.ts           # All Annotations window (Annotations + Ideas tabs)
+    annotationPanel.ts           # All Annotations window (Annotations + Ideas + Organizer tabs)
     annotationExport.ts          # Markdown/HTML/note export with citations
     annotationWriter.ts          # Create page-anchored note annotations
     ideaLayer.ts                 # Citavi idea objects (notes + relations)
     ideaPanel.ts                 # Idea Layer browser UI
+    outlineModel.ts              # Knowledge-organizer outline tree + heading tags (native note storage)
+    outlineExport.ts             # Gather-by-heading → Markdown/HTML/note draft
+    outlinePanel.ts              # Knowledge Organizer UI (outline tree + draft preview)
     qaPanel.ts                   # Reader Q&A panel + multi-paper dialog
     pdfExtractor.ts              # Per-page PDF text extraction
     llmClient.ts                 # Provider API calls + context building
@@ -162,6 +184,8 @@ src/
 **Q&A citations aren't clickable.** The model didn't emit the expected citation format; try a more capable model (Claude Sonnet/Opus, GPT-5.4 Pro), which follow the instructions more reliably.
 
 **New colours/tags don't appear in the filter row.** Those rows are built when the window opens — close and reopen **All Annotations** to pick up newly added colours/tags.
+
+**Nothing shows under a heading in the Organizer.** Filing uses the heading's exact tag, shown beneath the heading (e.g. `§Introduction`). If you tag highlights in the reader, match that tag exactly — or rename the heading from the panel, which re-tags everything filed under it for you.
 
 ---
 

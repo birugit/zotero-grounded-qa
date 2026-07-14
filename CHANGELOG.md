@@ -9,6 +9,46 @@ All notable changes to this project are documented here. The format is based on
 > tags up to `v3.1.0`. Releasing above those avoids tag collisions; the number
 > is not meaningful beyond "newer than everything before it."
 
+## [4.1.0] — 2026-07-13
+
+Adds the **Knowledge Organizer** — a Citavi-style layer for outlining your paper
+and gathering everything you filed under each heading into a first draft.
+
+### Added
+
+- **Knowledge Organizer** (Tools → Knowledge Organizer, and a 🗂 Organizer tab in
+  the All Annotations window): build a hierarchical outline of headings for your
+  book/paper/review, then file quotes and notes under each one.
+- **Headings are Zotero tags** (prefixed `§`): file a highlight under a heading
+  straight from Zotero's own reader tag box while reading, and it is gathered
+  automatically — no separate mode.
+- **Outline editing**: add/rename/delete headings, reorder among siblings, and
+  indent/outdent to nest sub-headings, with a live count of items filed under
+  each. The outline is stored as one native note tagged `★outline`, so it syncs
+  like any other item.
+- **In-panel filing**: search your annotations and file them under the selected
+  heading, or remove them, without leaving the window.
+- **Generate draft**: gather everything under every heading, in outline order and
+  with citations, into a preview you can toggle between Markdown and HTML
+  (optionally including empty headings), then copy it or save it as a standalone
+  Zotero note.
+- **Rename cascades**: renaming a heading re-tags every quote and note filed under
+  it; deleting a heading is non-destructive and leaves items' tags intact.
+
+### Changed
+
+- The All Annotations window now hosts three tabs (Annotations, Ideas,
+  Organizer); the Organizer pane re-renders on activation to reflect the latest
+  filing.
+
+### Known limitations
+
+- Heading titles must be unique across the outline (a heading maps to a single
+  tag).
+- New Organizer UI strings are English-only for now.
+- As before, indexing/filing target the user library and large-library
+  performance is not yet stress-tested.
+
 ## [4.0.0] — 2026-06-28
 
 First release as **Lattice** (renamed from **Grounded Q&A**), reflecting an

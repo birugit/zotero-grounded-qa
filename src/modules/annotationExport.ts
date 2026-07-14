@@ -23,7 +23,7 @@ const TYPE_LABEL: Record<string, string> = {
 };
 
 /** Resolve a citation string for an item, honouring the user's QuickCopy style. */
-function citationFor(item: Zotero.Item): string {
+export function citationFor(item: Zotero.Item): string {
   try {
     const format = Zotero.QuickCopy.getFormatFromURL(
       (Zotero.QuickCopy as any).lastActiveURL || "",
@@ -55,7 +55,7 @@ function fallbackCitation(item: Zotero.Item): string {
 }
 
 /** Deep link that opens the PDF/EPUB at the annotation. */
-function deepLink(rec: AnnRecord): string {
+export function deepLink(rec: AnnRecord): string {
   if (!rec.attachmentKey) return "";
   return `zotero://open-pdf/${rec.libraryPrefix}/items/${rec.attachmentKey}?annotation=${rec.key}`;
 }

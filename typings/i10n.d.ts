@@ -17,6 +17,8 @@ export type FluentMessageId =
   | 'menuitem-label'
   | 'menuitem-submenulabel'
   | 'menupopup-label'
+  | 'outline-menu-label'
+  | 'outline-window-title'
   | 'pref-help'
   | 'pref-qa-apikey-hint'
   | 'pref-qa-apikey-label'

@@ -14,7 +14,11 @@ import { getString } from "../utils/locale";
 const HTML_NS = "http://www.w3.org/1999/xhtml";
 
 /** Create an HTML <button> with native theming disabled so the label shows. */
-function htmlButton(doc: Document, label: string, t: Palette): HTMLButtonElement {
+function htmlButton(
+  doc: Document,
+  label: string,
+  t: Palette,
+): HTMLButtonElement {
   const b = doc.createElementNS(HTML_NS, "button") as HTMLButtonElement;
   b.textContent = label;
   b.style.cssText =
@@ -124,8 +128,7 @@ export class IdeaPanelFactory {
     const libraries = Zotero.Libraries.getAll();
     if (libraries.length > 1) {
       const libSel = doc.createElement("select");
-      libSel.style.cssText =
-        `padding:5px 6px;border:1px solid ${t.border};border-radius:4px;font-size:13px;background:${t.inputBg};color:${t.text};`;
+      libSel.style.cssText = `padding:5px 6px;border:1px solid ${t.border};border-radius:4px;font-size:13px;background:${t.inputBg};color:${t.text};`;
       for (const lib of libraries) {
         const o = doc.createElement("option");
         o.value = String(lib.libraryID);
@@ -145,8 +148,7 @@ export class IdeaPanelFactory {
     search.type = "search";
     search.placeholder = "Search ideas…";
     search.value = state.keyword;
-    search.style.cssText =
-      `flex:1;padding:5px 8px;border:1px solid ${t.border};border-radius:4px;font-size:13px;background:${t.inputBg};color:${t.text};`;
+    search.style.cssText = `flex:1;padding:5px 8px;border:1px solid ${t.border};border-radius:4px;font-size:13px;background:${t.inputBg};color:${t.text};`;
     search.addEventListener("input", () => {
       state.keyword = search.value;
       void renderList();
@@ -154,8 +156,7 @@ export class IdeaPanelFactory {
     bar.appendChild(search);
 
     const tagSel = doc.createElement("select");
-    tagSel.style.cssText =
-      `padding:5px 6px;border:1px solid ${t.border};border-radius:4px;font-size:13px;background:${t.inputBg};color:${t.text};`;
+    tagSel.style.cssText = `padding:5px 6px;border:1px solid ${t.border};border-radius:4px;font-size:13px;background:${t.inputBg};color:${t.text};`;
     tagSel.addEventListener("change", () => {
       state.tag = tagSel.value;
       void renderList();
@@ -168,8 +169,7 @@ export class IdeaPanelFactory {
 
     // ── list container ───────────────────────────────────────────────────
     const list = doc.createElement("div");
-    list.style.cssText =
-      `flex:1;overflow-y:auto;border:1px solid ${t.border};border-radius:4px;padding:4px;`;
+    list.style.cssText = `flex:1;overflow-y:auto;border:1px solid ${t.border};border-radius:4px;padding:4px;`;
     root.appendChild(list);
 
     // ── data + rendering ─────────────────────────────────────────────────
@@ -252,8 +252,7 @@ export class IdeaPanelFactory {
     const snippet = doc.createElement("div");
     snippet.textContent =
       idea.text.length > 240 ? idea.text.slice(0, 240) + "…" : idea.text;
-    snippet.style.cssText =
-      `color:${pal.sub};white-space:pre-wrap;word-break:break-word;margin-bottom:6px;`;
+    snippet.style.cssText = `color:${pal.sub};white-space:pre-wrap;word-break:break-word;margin-bottom:6px;`;
     card.appendChild(snippet);
 
     // tag chips (removable) + add-tag input
@@ -282,8 +281,7 @@ export class IdeaPanelFactory {
     const tagInput = doc.createElement("input");
     tagInput.type = "text";
     tagInput.placeholder = "+ tag";
-    tagInput.style.cssText =
-      `width:70px;padding:2px 6px;border:1px solid ${pal.border};border-radius:10px;font-size:11px;background:${pal.inputBg};color:${pal.text};`;
+    tagInput.style.cssText = `width:70px;padding:2px 6px;border:1px solid ${pal.border};border-radius:10px;font-size:11px;background:${pal.inputBg};color:${pal.text};`;
     tagInput.addEventListener("keydown", async (e: KeyboardEvent) => {
       if (e.key === "Enter" && tagInput.value.trim()) {
         e.preventDefault();

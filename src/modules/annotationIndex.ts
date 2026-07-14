@@ -110,6 +110,13 @@ export class AnnotationIndex {
     return this.built;
   }
 
+  /** Build the index only if it isn't already current for this library. */
+  static async ensureBuilt(libraryID?: number): Promise<void> {
+    const lib = libraryID ?? Zotero.Libraries.userLibraryID;
+    if (this.built && this.builtLibraryID === lib) return;
+    await this.build(lib);
+  }
+
   /** Return all records, newest-modified first. */
   static all(): AnnRecord[] {
     return Array.from(this.records.values()).sort((a, b) =>

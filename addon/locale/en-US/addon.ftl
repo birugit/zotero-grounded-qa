@@ -15,3 +15,7 @@ qa-multi-window-title = Grounded Q&A — Multiple Papers
 # Idea layer (Citavi)
 idea-menu-label = Idea Layer (Citavi) — Browse Ideas
 idea-window-title = Idea Layer (Citavi)
+
+# Knowledge organizer (Citavi-style outline → draft)
+outline-menu-label = Knowledge Organizer — Outline & Draft
+outline-window-title = Knowledge Organizer
